@@ -1,0 +1,44 @@
+import vk_api
+from vk_api.bot_longpoll import VkBotLongPoll, VkBotEventType
+import time
+import random
+
+import scripts.YandexSK as SKUtils
+
+# -------------------- Запуск бота -----------------------
+def start_bot(token):
+    v = 5.95
+    vk = vk_api.VkApi(token=token)
+    vk._auth_token()
+    longpooll = VkBotLongPoll(vk, 191808433)
+
+    while True:
+        try:
+            for event in longpooll.listen():
+                if event.type == VkBotEventType.MESSAGE_NEW:
+
+                    # если пишем в беседу
+                    if event.object.peer_id != event.object.from_id:
+                        if event.object.text.lower() == "привет":
+                            vk.method("messages.send", {"peer_id": event.object.peer_id, "message": event.object.text,
+                                                        "random_id": random.randint(1, 2147483647)})
+
+                    # если пишем боту в лс
+                    elif event.object.peer_id == event.object.from_id:
+                        if event.object.text.lower() == "полезные ссылки:":
+                            vk.method("messages.send", {"user_id": event.object.from_id, "message": event.object.text,
+                                                        "random_id": random.randint(1, 2147483647)})
+
+        except Exception as E:
+            time.sleep(1)
+
+
+def main():
+    # Токен для бота
+    SKUtils.save_file("abc", "Привет, медвед")
+    access_token_bot = "your token"
+    # start_bot(token=access_token_bot)
+
+
+if __name__ == '__main__':
+    main()
